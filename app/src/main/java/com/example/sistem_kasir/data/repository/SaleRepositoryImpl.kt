@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 class SaleRepositoryImpl @Inject constructor(
     private val saleDao: SaleDao,
-    private val productDao: ProductDao // 👈 tambahkan ini
+    private val productDao: ProductDao
 ) : SaleRepository {
 
     override fun getAllSales() = saleDao.getAllSalesWithItems().map { saleWithItemsList ->
@@ -19,7 +19,7 @@ class SaleRepositoryImpl @Inject constructor(
                 val product = productDao.getProductById(item.productId)
                 SaleItem(
                     id = item.id,
-                    saleId = item.saleId,
+                    // ❌ HAPUS saleId di sini — tidak ada di domain model
                     productId = item.productId,
                     productName = product?.name ?: "Produk Dihapus",
                     quantity = item.quantity,
@@ -28,7 +28,7 @@ class SaleRepositoryImpl @Inject constructor(
             }
             Sale(
                 id = saleWithItems.sale.id,
-                cashierName = "Kasir", // Nanti bisa ganti dengan join cashier
+                cashierName = "Kasir",
                 totalAmount = saleWithItems.sale.totalAmount,
                 totalProfit = saleWithItems.sale.totalProfit,
                 paymentMethod = saleWithItems.sale.paymentMethod,
@@ -44,7 +44,7 @@ class SaleRepositoryImpl @Inject constructor(
             val product = productDao.getProductById(item.productId)
             SaleItem(
                 id = item.id,
-                saleId = item.saleId,
+                // ❌ HAPUS saleId
                 productId = item.productId,
                 productName = product?.name ?: "Produk Dihapus",
                 quantity = item.quantity,
@@ -65,8 +65,8 @@ class SaleRepositoryImpl @Inject constructor(
     override suspend fun insertSale(sale: Sale): Long {
         val saleId = saleDao.insertSale(
             com.example.sistem_kasir.data.local.entity.Sale(
-                id = sale.id,
-                cashierId = 1, // nanti ganti dengan ID kasir aktif
+                id = 0, // Biarkan Room generate ID
+                cashierId = 1, // Nanti ganti dengan ID kasir aktif
                 totalAmount = sale.totalAmount,
                 totalProfit = sale.totalProfit,
                 paymentMethod = sale.paymentMethod,
@@ -76,7 +76,8 @@ class SaleRepositoryImpl @Inject constructor(
         sale.items.forEach { item ->
             saleDao.insertSaleItem(
                 com.example.sistem_kasir.data.local.entity.SaleItem(
-                    saleId = saleId,
+                    id = 0,
+                    saleId = saleId, // ✅ Ini BENAR — di entity Room
                     productId = item.productId,
                     quantity = item.quantity,
                     priceAtSale = item.priceAtSale
