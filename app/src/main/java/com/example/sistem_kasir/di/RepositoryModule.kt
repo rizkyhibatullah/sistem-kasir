@@ -1,9 +1,11 @@
 package com.example.sistem_kasir.di
 
 import com.example.sistem_kasir.data.repository.CashierRepositoryImpl
+import com.example.sistem_kasir.data.repository.CategoryRepositoryImpl
 import com.example.sistem_kasir.data.repository.ProductRepositoryImpl
 import com.example.sistem_kasir.data.repository.SaleRepositoryImpl
 import com.example.sistem_kasir.domain.repository.CashierRepository
+import com.example.sistem_kasir.domain.repository.CategoryRepository
 import com.example.sistem_kasir.domain.repository.ProductRepository
 import com.example.sistem_kasir.domain.repository.SaleRepository
 import dagger.Binds
@@ -23,4 +25,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindSaleRepository(impl: SaleRepositoryImpl): SaleRepository
+
+    @Binds
+    abstract fun bindCategoryRepository(impl: CategoryRepositoryImpl): CategoryRepository
 }

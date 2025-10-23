@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.sistem_kasir.data.local.dao.CashierDao
+import com.example.sistem_kasir.data.local.dao.CategoryDao
 import com.example.sistem_kasir.data.local.dao.ProductDao
 import com.example.sistem_kasir.data.local.dao.SaleDao
 import com.example.sistem_kasir.data.local.entity.Cashier
@@ -24,6 +25,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun cashierDao(): CashierDao
     abstract fun productDao(): ProductDao
     abstract fun saleDao(): SaleDao
+    abstract fun categoryDao(): CategoryDao
 
     companion object {
         @Volatile

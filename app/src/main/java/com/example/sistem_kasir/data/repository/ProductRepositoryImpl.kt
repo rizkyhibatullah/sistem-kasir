@@ -29,4 +29,13 @@ class ProductRepositoryImpl @Inject constructor(
     override suspend fun updateStock(productId: Long, newStock: Int) {
         dao.updateStock(productId, newStock)
     }
+
+    override suspend fun updateProduct(product: Product) {
+        dao.updateProduct(product.toEntity())
+    }
+
+    override suspend fun deleteProduct(productId: Long) {
+        val product = dao.getProductById(productId) ?: return
+        dao.deleteProduct(product)
+    }
 }

@@ -9,4 +9,6 @@ interface ProductRepository {
     fun getLowStockProducts(threshold: Int = 5): Flow<List<Product>>
     suspend fun insertProduct(product: Product): Long
     suspend fun updateStock(productId: Long, newStock: Int)
+    suspend fun updateProduct(product: Product)
+    suspend fun deleteProduct(productId: Long)
 }

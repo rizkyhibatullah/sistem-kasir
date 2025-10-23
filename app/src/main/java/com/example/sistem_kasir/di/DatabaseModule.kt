@@ -3,6 +3,7 @@ package com.example.sistem_kasir.di
 import android.content.Context
 import com.example.sistem_kasir.data.local.AppDatabase
 import com.example.sistem_kasir.data.local.dao.CashierDao
+import com.example.sistem_kasir.data.local.dao.CategoryDao
 import com.example.sistem_kasir.data.local.dao.ProductDao
 import com.example.sistem_kasir.data.local.dao.SaleDao
 import dagger.Module
@@ -33,4 +34,8 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideSaleDao(database: AppDatabase): SaleDao = database.saleDao()
+
+    @Provides
+    @Singleton
+    fun provideCategoryDao(database: AppDatabase): CategoryDao = database.categoryDao()
 }

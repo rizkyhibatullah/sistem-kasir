@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,6 +33,7 @@ import java.util.Locale
 @Composable
 fun MainScreen(
     onCheckout: () -> Unit,
+    onNavigateToProducts: () -> Unit,
     sharedCartViewModel: SharedCartViewModel,
     modifier: Modifier = Modifier,
     viewModel: MainViewModel = hiltViewModel()
@@ -72,7 +74,12 @@ fun MainScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = Color.White
-                )
+                ),
+                actions = {
+                    IconButton(onClick = onNavigateToProducts) {
+                        Icon(Icons.Filled.Inventory, contentDescription = "Manajemen Produk")
+                    }
+                }
             )
         },
         content = { padding ->
@@ -156,7 +163,7 @@ private fun ProductCard(
             )
 
             Text(
-                text = "Rp${product.price.formatRupiah()}",
+                text = product.price.formatRupiah(),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold
@@ -280,7 +287,7 @@ private fun CartItemRow(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(item.name, fontWeight = FontWeight.Medium)
-            Text("Rp${item.price.formatRupiah()}", style = MaterialTheme.typography.bodyMedium)
+            Text(item.price.formatRupiah(), style = MaterialTheme.typography.bodyMedium)
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
