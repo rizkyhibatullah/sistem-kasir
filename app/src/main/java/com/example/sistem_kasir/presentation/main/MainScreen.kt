@@ -1,4 +1,4 @@
-package com.example.sistem_kasir.presentation.screens.main
+package com.example.sistem_kasir.presentation.main
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,6 +22,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sistem_kasir.domain.model.CartItem
 import com.example.sistem_kasir.domain.model.CartSummary
 import com.example.sistem_kasir.domain.model.Product
+import com.example.sistem_kasir.presentation.screens.main.MainViewModel
+import com.example.sistem_kasir.presentation.viewmodel.SharedCartViewModel
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
@@ -29,15 +31,39 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    onCheckout: (List<CartItem>) -> Unit,
+    onCheckout: () -> Unit,
+    sharedCartViewModel: SharedCartViewModel,
     modifier: Modifier = Modifier,
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val cartItems by sharedCartViewModel.cartItems.collectAsState()
 
-    // Bottom sheet state
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
+
+    // Fungsi helper
+    val addToCart: (Product) -> Unit = { product ->
+        sharedCartViewModel.addToCart(
+            com.example.sistem_kasir.domain.model.CartItem(
+                productId = product.id,
+                name = product.name,
+                price = product.price,
+                costPrice = product.costPrice,
+                quantity = 1
+            )
+        )
+    }
+
+    val removeFromCart: (Long) -> Unit = { productId ->
+        sharedCartViewModel.removeFromCart(productId)
+    }
+
+    val calculateTotal = {
+        com.example.sistem_kasir.domain.usecase.cart.CalculateCartTotalUseCase()(
+            cartItems
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -51,33 +77,32 @@ fun MainScreen(
         },
         content = { padding ->
             MainContent(
-                products = uiState.products, // ✅ Sekarang valid
-                onAddToCart = viewModel::addToCart,
+                products = uiState.products,
+                onAddToCart = addToCart,
                 modifier = modifier.padding(padding)
             )
         },
         bottomBar = {
             BottomSummaryBar(
-                cartItemCount = uiState.cartItems.size,
-                totalAmount = viewModel.calculateCartTotal().subTotal,
+                cartItemCount = cartItems.size,
+                totalAmount = calculateTotal().subTotal,
                 onOpenCart = { scope.launch { bottomSheetState.show() } },
-                onCheckout = { onCheckout(uiState.cartItems) }
+                onCheckout = onCheckout
             )
         }
     )
 
-    // Bottom Sheet: Keranjang
-    if (uiState.cartItems.isNotEmpty()) {
-        androidx.compose.material3.ModalBottomSheet(
+    if (cartItems.isNotEmpty()) {
+        ModalBottomSheet(
             onDismissRequest = { scope.launch { bottomSheetState.hide() } },
             sheetState = bottomSheetState,
             dragHandle = { BottomSheetDefaults.DragHandle() }
         ) {
             CartContent(
-                cartItems = uiState.cartItems, // ✅ valid
-                onRemoveItem = viewModel::removeFromCart,
-                onClearCart = viewModel::clearCart,
-                totalSummary = viewModel.calculateCartTotal()
+                cartItems = cartItems,
+                onRemoveItem = removeFromCart,
+                onClearCart = sharedCartViewModel::clearCart,
+                totalSummary = calculateTotal()
             )
         }
     }
