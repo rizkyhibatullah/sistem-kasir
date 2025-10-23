@@ -15,11 +15,13 @@ activityCompose = "1.11.0"
 composeBom = "2025.10.00"
 ksp = "2.2.20-2.0.4"
 hilt = "2.57.2"
+materialIconsCore = "1.7.8"
 navigationCompose = "2.9.5"
 roomRuntime = "2.8.2"
 roomKtx = "2.8.2"
 
 [libraries]
+androidx-compose-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "materialIconsCore" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }

@@ -84,4 +84,5 @@ dependencies {
 
     // Optional: Coil (untuk gambar produk)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.compose.material.icons.core)
 }

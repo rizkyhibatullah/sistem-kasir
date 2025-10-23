@@ -2,12 +2,7 @@ package com.example.sistem_kasir.domain.usecase.cart
 
 import com.example.sistem_kasir.domain.model.CartItem
 import javax.inject.Inject
-
-data class CartSummary(
-    val subtotal: Long,
-    val totalProfit: Long,
-    val itemCount: Int
-)
+import com.example.sistem_kasir.domain.model.CartSummary
 
 class CalculateCartTotalUseCase @Inject constructor() {
     operator fun invoke(items: List<CartItem>): CartSummary {

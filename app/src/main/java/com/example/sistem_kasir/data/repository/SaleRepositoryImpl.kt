@@ -44,7 +44,6 @@ class SaleRepositoryImpl @Inject constructor(
             val product = productDao.getProductById(item.productId)
             SaleItem(
                 id = item.id,
-                // ❌ HAPUS saleId
                 productId = item.productId,
                 productName = product?.name ?: "Produk Dihapus",
                 quantity = item.quantity,
@@ -65,8 +64,8 @@ class SaleRepositoryImpl @Inject constructor(
     override suspend fun insertSale(sale: Sale): Long {
         val saleId = saleDao.insertSale(
             com.example.sistem_kasir.data.local.entity.Sale(
-                id = 0, // Biarkan Room generate ID
-                cashierId = 1, // Nanti ganti dengan ID kasir aktif
+                id = 0,
+                cashierId = 1,
                 totalAmount = sale.totalAmount,
                 totalProfit = sale.totalProfit,
                 paymentMethod = sale.paymentMethod,
@@ -77,7 +76,7 @@ class SaleRepositoryImpl @Inject constructor(
             saleDao.insertSaleItem(
                 com.example.sistem_kasir.data.local.entity.SaleItem(
                     id = 0,
-                    saleId = saleId, // ✅ Ini BENAR — di entity Room
+                    saleId = saleId,
                     productId = item.productId,
                     quantity = item.quantity,
                     priceAtSale = item.priceAtSale
