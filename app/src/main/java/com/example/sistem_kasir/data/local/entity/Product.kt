@@ -18,7 +18,7 @@ import androidx.room.PrimaryKey
     indices = [Index("categoryId")]
 )
 data class Product(
-    @PrimaryKey val id: Long = 0,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val code: String = "",
     val name: String,
     val price: Long,          // dalam satuan rupiah (misal: 5000)

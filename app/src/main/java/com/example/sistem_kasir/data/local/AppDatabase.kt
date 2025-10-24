@@ -17,7 +17,7 @@ import com.example.sistem_kasir.data.local.entity.SaleItem
 
 @Database(
     entities = [Cashier::class, Category::class, Product::class, Sale::class, SaleItem::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters
@@ -37,7 +37,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "pos_warung_db"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }

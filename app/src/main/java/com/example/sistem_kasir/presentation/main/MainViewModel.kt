@@ -1,4 +1,4 @@
-package com.example.sistem_kasir.presentation.screens.main
+package com.example.sistem_kasir.presentation.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

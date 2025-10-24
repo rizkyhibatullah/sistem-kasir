@@ -1,7 +1,8 @@
-package com.example.sistem_kasir.presentation.main
+package com.example.sistem_kasir.presentation.screens.main
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -21,13 +22,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sistem_kasir.domain.model.CartItem
-import com.example.sistem_kasir.domain.model.CartSummary
 import com.example.sistem_kasir.domain.model.Product
-import com.example.sistem_kasir.presentation.screens.main.MainViewModel
+import com.example.sistem_kasir.domain.usecase.cart.CalculateCartTotalUseCase
+import com.example.sistem_kasir.domain.usecase.product.GetAllProductsUseCase
+import com.example.sistem_kasir.presentation.main.MainUiState
+import com.example.sistem_kasir.presentation.main.MainViewModel
 import com.example.sistem_kasir.presentation.viewmodel.SharedCartViewModel
 import kotlinx.coroutines.launch
-import java.text.NumberFormat
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,31 +42,9 @@ fun MainScreen(
     val uiState by viewModel.uiState.collectAsState()
     val cartItems by sharedCartViewModel.cartItems.collectAsState()
 
+    // State untuk bottom sheet
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-
-    // Fungsi helper
-    val addToCart: (Product) -> Unit = { product ->
-        sharedCartViewModel.addToCart(
-            com.example.sistem_kasir.domain.model.CartItem(
-                productId = product.id,
-                name = product.name,
-                price = product.price,
-                costPrice = product.costPrice,
-                quantity = 1
-            )
-        )
-    }
-
-    val removeFromCart: (Long) -> Unit = { productId ->
-        sharedCartViewModel.removeFromCart(productId)
-    }
-
-    val calculateTotal = {
-        com.example.sistem_kasir.domain.usecase.cart.CalculateCartTotalUseCase()(
-            cartItems
-        )
-    }
 
     Scaffold(
         topBar = {
@@ -85,15 +64,29 @@ fun MainScreen(
         content = { padding ->
             MainContent(
                 products = uiState.products,
-                onAddToCart = addToCart,
+                onAddToCart = { product ->
+                    sharedCartViewModel.addToCart(
+                        CartItem(
+                            productId = product.id,
+                            name = product.name,
+                            price = product.price,
+                            costPrice = product.costPrice,
+                            quantity = 1
+                        )
+                    )
+                },
                 modifier = modifier.padding(padding)
             )
         },
         bottomBar = {
             BottomSummaryBar(
                 cartItemCount = cartItems.size,
-                totalAmount = calculateTotal().subTotal,
-                onOpenCart = { scope.launch { bottomSheetState.show() } },
+                totalAmount = CalculateCartTotalUseCase()(cartItems).subTotal,
+                onOpenCart = {
+                    scope.launch {
+                        bottomSheetState.show()
+                    }
+                },
                 onCheckout = onCheckout
             )
         }
@@ -105,19 +98,54 @@ fun MainScreen(
             sheetState = bottomSheetState,
             dragHandle = { BottomSheetDefaults.DragHandle() }
         ) {
-            CartContent(
-                cartItems = cartItems,
-                onRemoveItem = removeFromCart,
-                onClearCart = sharedCartViewModel::clearCart,
-                totalSummary = calculateTotal()
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Keranjang", style = MaterialTheme.typography.headlineSmall)
+                    TextButton(onClick = sharedCartViewModel::clearCart) {
+                        Text("Kosongkan", color = MaterialTheme.colorScheme.error)
+                    }
+                }
+
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(cartItems) { item ->
+                        CartItemRow(
+                            item = item,
+                            onRemove = { sharedCartViewModel.removeFromCart(item.productId) }
+                        )
+                    }
+                }
+
+                Divider(modifier = Modifier.padding(vertical = 12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Total", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text(
+                        CalculateCartTotalUseCase()(cartItems).subTotal.formatRupiah(),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
 private fun MainContent(
-    products: List<Product>, // ✅ import Product dari domain
+    products: List<Product>,
     onAddToCart: (Product) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -163,7 +191,7 @@ private fun ProductCard(
             )
 
             Text(
-                text = product.price.formatRupiah(),
+                text = "Rp${product.price.formatRupiah()}",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold
@@ -228,53 +256,6 @@ private fun BottomSummaryBar(
 }
 
 @Composable
-private fun CartContent(
-    cartItems: List<CartItem>,
-    onRemoveItem: (Long) -> Unit,
-    onClearCart: () -> Unit,
-    totalSummary: CartSummary
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("Keranjang", style = MaterialTheme.typography.headlineSmall)
-            TextButton(onClick = onClearCart) {
-                Text("Kosongkan", color = MaterialTheme.colorScheme.error)
-            }
-        }
-
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.weight(1f)
-        ) {
-            items(cartItems) { item ->
-                CartItemRow(item = item, onRemove = { onRemoveItem(item.productId) })
-            }
-        }
-
-        androidx.compose.material3.Divider(modifier = Modifier.padding(vertical = 12.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("Total", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Text(
-                totalSummary.subTotal.formatRupiah(),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-}
-
-@Composable
 private fun CartItemRow(
     item: CartItem,
     onRemove: () -> Unit,
@@ -287,23 +268,22 @@ private fun CartItemRow(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(item.name, fontWeight = FontWeight.Medium)
-            Text(item.price.formatRupiah(), style = MaterialTheme.typography.bodyMedium)
+            Text("Rp${item.price.formatRupiah()}", style = MaterialTheme.typography.bodyMedium)
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onRemove) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Kurangi"
+                    contentDescription = "Hapus"
                 )
             }
-            Text("x${item.quantity}", textAlign = TextAlign.Center, modifier = Modifier.width(32.dp),)
+            Text("x${item.quantity}", modifier = Modifier.width(32.dp), textAlign = TextAlign.Center)
         }
     }
 }
 
-// Ekstensi format Rupiah
 fun Long.formatRupiah(): String {
-    val formatter = NumberFormat.getNumberInstance(Locale("in", "ID"))
+    val formatter = java.text.NumberFormat.getNumberInstance(java.util.Locale("in", "ID"))
     return "Rp${formatter.format(this)}"
 }
