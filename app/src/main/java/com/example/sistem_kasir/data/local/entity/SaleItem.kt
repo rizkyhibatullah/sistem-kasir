@@ -24,7 +24,7 @@ import androidx.room.PrimaryKey
     indices = [Index("saleId"), Index("productId")]
 )
 data class SaleItem(
-    @PrimaryKey val id: Long = 0,
+    @PrimaryKey (autoGenerate = true) val id: Long = 0,
     val saleId: Long,
     val productId: Long,
     val quantity: Int,

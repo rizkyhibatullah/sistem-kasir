@@ -246,7 +246,7 @@ private fun ProductCard(
             )
 
             Text(
-                text = "Rp${product.price.formatRupiah()}",
+                text = product.price.formatRupiah(),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold
@@ -323,7 +323,7 @@ private fun CartItemRow(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(item.name, fontWeight = FontWeight.Medium)
-            Text("Rp${item.price.formatRupiah()}", style = MaterialTheme.typography.bodyMedium)
+            Text(item.price.formatRupiah(), style = MaterialTheme.typography.bodyMedium)
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {

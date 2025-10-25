@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "sales")
 data class Sale(
-    @PrimaryKey val id: Long = 0,
+    @PrimaryKey (autoGenerate = true) val id: Long = 0,
     val cashierId: Long,
     val totalAmount: Long,
     val totalProfit: Long,

@@ -17,7 +17,7 @@ import com.example.sistem_kasir.data.local.entity.SaleItem
 
 @Database(
     entities = [Cashier::class, Category::class, Product::class, Sale::class, SaleItem::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters
