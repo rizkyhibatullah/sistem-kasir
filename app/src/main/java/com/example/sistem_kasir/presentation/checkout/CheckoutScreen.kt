@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.sistem_kasir.domain.model.CartItem
-import com.example.sistem_kasir.presentation.screens.main.formatRupiah
+import com.example.sistem_kasir.presentation.main.formatRupiah
 import com.example.sistem_kasir.presentation.viewmodel.SharedCartViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

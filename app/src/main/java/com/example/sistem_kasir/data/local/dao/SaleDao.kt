@@ -26,6 +26,9 @@ interface SaleDao {
     @Insert
     suspend fun insertSaleItem(item: SaleItem)
 
+    @Query("SELECT * FROM sales WHERE timestamp BETWEEN :start AND :end ORDER BY timestamp DESC")
+    fun getSalesByDateRange(start: Long, end: Long): Flow<List<SaleWithItems>>
+
     // Helper class untuk join
     data class SaleWithItems(
         @Embedded val sale: Sale,

@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface SaleRepository {
     fun getAllSales(): Flow<List<Sale>>
+    fun getSalesByDateRange(startDate: Long, endDate: Long): Flow<List<Sale>>
     suspend fun getSaleById(id: Long): Sale?
     suspend fun insertSale(sale: Sale): Long
 }

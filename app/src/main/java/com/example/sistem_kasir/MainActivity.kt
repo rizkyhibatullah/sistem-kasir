@@ -32,10 +32,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.sistem_kasir.presentation.checkout.CheckoutScreen
+import com.example.sistem_kasir.presentation.main.MainScreen
 import com.example.sistem_kasir.presentation.product.ProductFormScreen
 import com.example.sistem_kasir.presentation.product.ProductManagementScreen
-import com.example.sistem_kasir.presentation.report.ReportScreen
-import com.example.sistem_kasir.presentation.screens.main.MainScreen
+import com.example.sistem_kasir.presentation.screens.report.ReportScreen
 import com.example.sistem_kasir.presentation.viewmodel.CashierViewModel
 import com.example.sistem_kasir.presentation.viewmodel.SharedCartViewModel
 import com.example.sistem_kasir.ui.theme.Sistem_kasirTheme

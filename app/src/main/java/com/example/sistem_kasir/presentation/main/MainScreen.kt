@@ -1,8 +1,15 @@
-package com.example.sistem_kasir.presentation.screens.main
+package com.example.sistem_kasir.presentation.main
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement.spacedBy
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -11,8 +18,30 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Inventory
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,12 +49,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sistem_kasir.domain.model.CartItem
 import com.example.sistem_kasir.domain.model.Product
 import com.example.sistem_kasir.domain.usecase.cart.CalculateCartTotalUseCase
-import com.example.sistem_kasir.domain.usecase.product.GetAllProductsUseCase
-import com.example.sistem_kasir.presentation.main.MainUiState
 import com.example.sistem_kasir.presentation.main.MainViewModel
 import com.example.sistem_kasir.presentation.viewmodel.SharedCartViewModel
 import kotlinx.coroutines.launch
@@ -42,9 +70,8 @@ fun MainScreen(
     val uiState by viewModel.uiState.collectAsState()
     val cartItems by sharedCartViewModel.cartItems.collectAsState()
 
-    // State untuk bottom sheet
-    val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val scope = rememberCoroutineScope()
+    // State untuk dialog keranjang
+    var showCartDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -82,21 +109,39 @@ fun MainScreen(
             BottomSummaryBar(
                 cartItemCount = cartItems.size,
                 totalAmount = CalculateCartTotalUseCase()(cartItems).subTotal,
-                onOpenCart = {
-                    scope.launch {
-                        bottomSheetState.show()
-                    }
-                },
+                onOpenCart = { showCartDialog = true },
                 onCheckout = onCheckout
             )
         }
     )
 
-    if (cartItems.isNotEmpty()) {
-        ModalBottomSheet(
-            onDismissRequest = { scope.launch { bottomSheetState.hide() } },
-            sheetState = bottomSheetState,
-            dragHandle = { BottomSheetDefaults.DragHandle() }
+    // Dialog Keranjang
+    if (showCartDialog && cartItems.isNotEmpty()) {
+        CartDialog(
+            cartItems = cartItems,
+            onDismiss = { showCartDialog = false },
+            onRemoveItem = { sharedCartViewModel.removeFromCart(it.productId) },
+            onClearCart = sharedCartViewModel::clearCart,
+            totalAmount = CalculateCartTotalUseCase()(cartItems).subTotal
+        )
+    }
+}
+
+@Composable
+private fun CartDialog(
+    cartItems: List<CartItem>,
+    onDismiss: () -> Unit,
+    onRemoveItem: (CartItem) -> Unit,
+    onClearCart: () -> Unit,
+    totalAmount: Long,
+    modifier: Modifier = Modifier
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = MaterialTheme.shapes.large
         ) {
             Column(
                 modifier = Modifier
@@ -108,7 +153,7 @@ fun MainScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Keranjang", style = MaterialTheme.typography.headlineSmall)
-                    TextButton(onClick = sharedCartViewModel::clearCart) {
+                    TextButton(onClick = onClearCart) {
                         Text("Kosongkan", color = MaterialTheme.colorScheme.error)
                     }
                 }
@@ -120,7 +165,7 @@ fun MainScreen(
                     items(cartItems) { item ->
                         CartItemRow(
                             item = item,
-                            onRemove = { sharedCartViewModel.removeFromCart(item.productId) }
+                            onRemove = { onRemoveItem(item) }
                         )
                     }
                 }
@@ -132,11 +177,21 @@ fun MainScreen(
                 ) {
                     Text("Total", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Text(
-                        CalculateCartTotalUseCase()(cartItems).subTotal.formatRupiah(),
+                        totalAmount.formatRupiah(),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Tutup")
+                    }
                 }
             }
         }

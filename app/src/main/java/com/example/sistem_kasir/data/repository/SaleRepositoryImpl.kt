@@ -2,9 +2,11 @@ package com.example.sistem_kasir.data.repository
 
 import com.example.sistem_kasir.data.local.dao.ProductDao
 import com.example.sistem_kasir.data.local.dao.SaleDao
+import com.example.sistem_kasir.data.mapper.toDomain
 import com.example.sistem_kasir.domain.model.Sale
 import com.example.sistem_kasir.domain.model.SaleItem
 import com.example.sistem_kasir.domain.repository.SaleRepository
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -35,6 +37,15 @@ class SaleRepositoryImpl @Inject constructor(
                 timestamp = saleWithItems.sale.timestamp,
                 items = items
             )
+        }
+    }
+
+    override fun getSalesByDateRange(
+        startDate: Long,
+        endDate: Long
+    ): Flow<List<Sale>> {
+        return saleDao.getSalesByDateRange(startDate, endDate).map { list ->
+            list.map { it.toDomain(productDao) } // 👈 lempar productDao
         }
     }
 

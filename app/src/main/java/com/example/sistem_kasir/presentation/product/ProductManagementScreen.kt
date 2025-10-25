@@ -36,7 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.sistem_kasir.domain.model.Product
-import com.example.sistem_kasir.presentation.screens.main.formatRupiah
+import com.example.sistem_kasir.presentation.main.formatRupiah
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
