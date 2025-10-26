@@ -5,10 +5,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -18,8 +20,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -29,13 +34,16 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,43 +75,80 @@ fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel = hiltViewModel()
 ) {
+    val filteredProducts by viewModel.filteredProducts.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
     val cartItems by sharedCartViewModel.cartItems.collectAsState()
 
-    // State untuk dialog keranjang
     var showCartDialog by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+
+    LaunchedEffect(searchQuery) {
+        viewModel.search(searchQuery)
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Kasir Warung", fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        "Kasir Warung",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = MaterialTheme.typography.titleLarge.fontSize
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = Color.White
                 ),
-                actions = {
-                    IconButton(onClick = onNavigateToProducts) {
-                        Icon(Icons.Filled.Inventory, contentDescription = "Manajemen Produk")
-                    }
-                }
+//                actions = {
+//                    IconButton(onClick = onNavigateToProducts) {
+//                        Icon(
+//                            imageVector = Icons.Filled.Inventory,
+//                            contentDescription = "Manajemen Produk",
+//                            tint = Color.White
+//                        )
+//                    }
+//                }
             )
         },
         content = { padding ->
-            MainContent(
-                products = uiState.products,
-                onAddToCart = { product ->
-                    sharedCartViewModel.addToCart(
-                        CartItem(
-                            productId = product.id,
-                            name = product.name,
-                            price = product.price,
-                            costPrice = product.costPrice,
-                            quantity = 1
-                        )
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                // 🔍 Kolom Pencarian
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    label = { Text("Cari produk...") },
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    shape = MaterialTheme.shapes.medium
+                )
+
+                // Daftar Produk
+                if (filteredProducts.isEmpty()) {
+                    EmptyProductState(searchQuery.isNotBlank())
+                } else {
+                    MainContent(
+                        products = filteredProducts,
+                        onAddToCart = { product ->
+                            sharedCartViewModel.addToCart(
+                                CartItem(
+                                    productId = product.id,
+                                    name = product.name,
+                                    price = product.price,
+                                    costPrice = product.costPrice,
+                                    quantity = 1
+                                )
+                            )
+                        }
                     )
-                },
-                modifier = modifier.padding(padding)
-            )
+                }
+            }
         },
         bottomBar = {
             BottomSummaryBar(
@@ -115,7 +160,7 @@ fun MainScreen(
         }
     )
 
-    // Dialog Keranjang
+    // Dialog Keranjang (tetap sama)
     if (showCartDialog && cartItems.isNotEmpty()) {
         CartDialog(
             cartItems = cartItems,
@@ -205,7 +250,7 @@ private fun MainContent(
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 160.dp),
+        columns = GridCells.Adaptive(minSize = 150.dp),
         contentPadding = PaddingValues(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -226,10 +271,13 @@ private fun ProductCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(140.dp)
+            .height(130.dp)
             .clickable { onAddToCart(product) },
         shape = MaterialTheme.shapes.medium,
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp), // ✅ Flat modern
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
         Column(
             modifier = Modifier
@@ -237,27 +285,42 @@ private fun ProductCard(
                 .padding(12.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+            // Nama Produk
             Text(
                 text = product.name,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
+                fontWeight = FontWeight.Medium,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
 
+            // Harga
             Text(
                 text = product.price.formatRupiah(),
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
             )
 
+            // Stok (jika rendah)
             if (product.stock <= 5) {
-                Text(
-                    text = "Stok: ${product.stock}",
-                    color = MaterialTheme.colorScheme.error,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(12.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Stok: ${product.stock}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
     }
@@ -271,39 +334,53 @@ private fun BottomSummaryBar(
     onCheckout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        shape = MaterialTheme.shapes.large
+    Surface(
+        shadowElevation = 4.dp,
+        color = MaterialTheme.colorScheme.surface
     ) {
         Row(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text("Total: ${totalAmount.formatRupiah()}", fontWeight = FontWeight.Bold)
+                Text(
+                    "Total: ${totalAmount.formatRupiah()}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
                 if (cartItemCount > 0) {
-                    Text("$cartItemCount item", style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        "$cartItemCount item",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
 
-            Row() {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = onOpenCart,
-                    enabled = cartItemCount > 0
+                    enabled = cartItemCount > 0,
+                    shape = MaterialTheme.shapes.small,
+                    border = ButtonDefaults.outlinedButtonBorder,
+                    colors = ButtonDefaults.outlinedButtonColors()
                 ) {
-                    Text("Keranjang")
+                    Text("Keranjang", style = MaterialTheme.typography.labelMedium)
                 }
 
                 Button(
                     onClick = onCheckout,
-                    enabled = cartItemCount > 0
+                    enabled = cartItemCount > 0,
+                    shape = MaterialTheme.shapes.small,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = Color.White
+                    )
                 ) {
-                    Text("Bayar", fontWeight = FontWeight.SemiBold)
+                    Text("Bayar", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -341,4 +418,32 @@ private fun CartItemRow(
 fun Long.formatRupiah(): String {
     val formatter = java.text.NumberFormat.getNumberInstance(java.util.Locale("in", "ID"))
     return "Rp${formatter.format(this)}"
+}
+
+@Composable
+private fun EmptyProductState(isSearching: Boolean = false) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = if (isSearching) Icons.Default.Search else Icons.Default.Inventory,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(64.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            if (isSearching) "Produk tidak ditemukan" else "Belum ada produk",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            if (isSearching) "Coba kata kunci lain" else "Tambah produk di menu Manajemen Produk",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 }

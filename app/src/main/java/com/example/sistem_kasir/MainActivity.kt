@@ -120,7 +120,7 @@ fun MainNavGraph(
                         if (product == null) {
                             navController.navigate("product_form")
                         } else {
-                            navController.currentBackStackEntry?.savedStateHandle?.set("product", product)
+                            navController.currentBackStackEntry?.savedStateHandle?.set("product_id", product.id)
                             navController.navigate("product_form")
                         }
                     },
@@ -132,7 +132,6 @@ fun MainNavGraph(
                 val product = navController.previousBackStackEntry?.savedStateHandle?.get<com.example.sistem_kasir.domain.model.Product>("product")
                 val formViewModel: com.example.sistem_kasir.presentation.product.ProductViewModel = hiltViewModel()
                 ProductFormScreen(
-                    product = product,
                     onBack = { navController.popBackStack() },
                     onSave = { newProduct ->
                         if (newProduct.id == 0L) {
@@ -141,7 +140,8 @@ fun MainNavGraph(
                             formViewModel.updateProduct(newProduct)
                         }
                         navController.popBackStack("product_management", inclusive = false)
-                    }
+                    },
+                    navController = navController
                 )
             }
 

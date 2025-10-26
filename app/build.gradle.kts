@@ -38,6 +38,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
@@ -86,4 +87,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.material.icons.extended)
+
+//    implementation(libs.escpos.thermalprinter.android)
+//    implementation(libs.mpandroidchart)
+    implementation(libs.compose)
 }

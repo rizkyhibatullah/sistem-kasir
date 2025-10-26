@@ -1,6 +1,8 @@
 [versions]
 agp = "8.13.0"
 coilCompose = "2.7.0"
+compose = "2.2.1"
+escposThermalprinterAndroid = "4.0.0"
 hiltAndroid = "2.57.2"
 hiltNavigationCompose = "1.3.0"
 kotlin = "2.2.20"
@@ -16,6 +18,7 @@ composeBom = "2025.10.01"
 ksp = "2.2.20-2.0.4"
 hilt = "2.57.2"
 materialIconsCore = "1.7.8"
+mpandroidchart = "v3.1.0"
 navigationCompose = "2.9.5"
 roomRuntime = "2.8.3"
 roomKtx = "2.8.3"
@@ -31,6 +34,8 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+compose = { module = "com.patrykandpatrick.vico:compose", version.ref = "compose" }
+escpos-thermalprinter-android = { module = "com.github.DantSu:ESCPOS-ThermalPrinter-Android", version.ref = "escposThermalprinterAndroid" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -48,6 +53,7 @@ androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-te
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
