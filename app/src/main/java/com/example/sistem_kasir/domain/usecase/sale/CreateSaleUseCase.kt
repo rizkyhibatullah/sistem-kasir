@@ -13,8 +13,10 @@ class CreateSaleUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         cashierId: Long,
+        customerId: Long? = null,
         items: List<CartItem>,
-        paymentMethod: String
+        paymentMethod: String,
+        isDebt: Boolean = false
     ): Result<Long> {
         return try {
             // 1. Validasi stok (double-check)

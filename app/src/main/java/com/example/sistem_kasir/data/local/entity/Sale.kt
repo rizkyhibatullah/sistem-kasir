@@ -7,8 +7,10 @@ import androidx.room.PrimaryKey
 data class Sale(
     @PrimaryKey (autoGenerate = true) val id: Long = 0,
     val cashierId: Long,
+    val customerId: Long? = null,
     val totalAmount: Long,
     val totalProfit: Long,
     val paymentMethod: String, // "CASH", "QRIS", "TRANSFER"
+    val isDebt: Boolean = false,
     val timestamp: Long = System.currentTimeMillis()
 )

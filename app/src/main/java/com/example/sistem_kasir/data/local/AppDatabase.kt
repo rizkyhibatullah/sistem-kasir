@@ -7,6 +7,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.sistem_kasir.data.local.dao.CashierDao
 import com.example.sistem_kasir.data.local.dao.CategoryDao
+import com.example.sistem_kasir.data.local.dao.CustomerDao
+import com.example.sistem_kasir.data.local.dao.DebtDao
 import com.example.sistem_kasir.data.local.dao.ProductDao
 import com.example.sistem_kasir.data.local.dao.SaleDao
 import com.example.sistem_kasir.data.local.entity.Cashier
@@ -17,7 +19,7 @@ import com.example.sistem_kasir.data.local.entity.SaleItem
 
 @Database(
     entities = [Cashier::class, Category::class, Product::class, Sale::class, SaleItem::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters
@@ -26,6 +28,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun productDao(): ProductDao
     abstract fun saleDao(): SaleDao
     abstract fun categoryDao(): CategoryDao
+    abstract fun customerDao(): CustomerDao
+    abstract fun debtDao(): DebtDao
 
     companion object {
         @Volatile
