@@ -48,9 +48,11 @@ class CreateSaleUseCase @Inject constructor(
             // 3. Buat objek Sale
             val sale = Sale(
                 cashierName = "Kasir", // Nanti ganti dengan nama asli
+                customerId = customerId,
                 totalAmount = totalAmount,
                 totalProfit = totalProfit,
                 paymentMethod = paymentMethod,
+                isDebt = isDebt,
                 timestamp = System.currentTimeMillis(),
                 items = saleItems
             )

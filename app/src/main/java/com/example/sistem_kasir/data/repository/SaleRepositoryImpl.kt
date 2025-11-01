@@ -77,9 +77,11 @@ class SaleRepositoryImpl @Inject constructor(
             com.example.sistem_kasir.data.local.entity.Sale(
                 id = 0,
                 cashierId = 1,
+                customerId = sale.customerId,
                 totalAmount = sale.totalAmount,
                 totalProfit = sale.totalProfit,
                 paymentMethod = sale.paymentMethod,
+                isDebt = sale.isDebt,
                 timestamp = sale.timestamp
             )
         )

@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DebtDao {
-    @Query("SELECT * FROM debts ORDER BY created_at DESC")
+    @Query("SELECT * FROM debts ORDER BY createdAt DESC")
     fun getAllDebts(): Flow<List<Debt>>
 
-    @Query("SELECT * FROM debts WHERE customer_id = :customerId ORDER BY created_at DESC")
+    @Query("SELECT * FROM debts WHERE customerId = :customerId ORDER BY createdAt DESC")
     fun getDebtsByCustomer(customerId: Long): Flow<List<Debt>>
 
     @Query("SELECT * FROM debts WHERE id = :id")

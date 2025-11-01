@@ -13,13 +13,15 @@ import com.example.sistem_kasir.data.local.dao.ProductDao
 import com.example.sistem_kasir.data.local.dao.SaleDao
 import com.example.sistem_kasir.data.local.entity.Cashier
 import com.example.sistem_kasir.data.local.entity.Category
+import com.example.sistem_kasir.data.local.entity.Customer
+import com.example.sistem_kasir.data.local.entity.Debt
 import com.example.sistem_kasir.data.local.entity.Product
 import com.example.sistem_kasir.data.local.entity.Sale
 import com.example.sistem_kasir.data.local.entity.SaleItem
 
 @Database(
-    entities = [Cashier::class, Category::class, Product::class, Sale::class, SaleItem::class],
-    version = 4,
+    entities = [Cashier::class, Category::class, Product::class, Sale::class, SaleItem::class, Customer::class, Debt::class],
+    version = 5,
     exportSchema = false
 )
 @TypeConverters
